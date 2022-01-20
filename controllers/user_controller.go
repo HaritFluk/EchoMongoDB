@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var userCollections *mongo.Collection = configs.GetCollection(configs.DB, "users")
+var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
 var validate = validator.New()
 
 // CreateUser
@@ -41,7 +41,7 @@ func CreateUser(c echo.Context) error {
 		Title: 		user.Title,
 	}
 
-	result, err := userCollections.InsertOne(ctx, newUser)
+	result, err := userCollection.InsertOne(ctx, newUser)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
 	}
@@ -57,7 +57,7 @@ func GetAUser(c echo.Context) error {
 
 	objId, _ := primitive.ObjectIDFromHex(userId)
 
-	err := userCollections.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+	err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
@@ -86,7 +86,7 @@ func EditAUser(c echo.Context) error {
 
 	update := bson.M{"name": user.Name, "location": user.Location, "title": user.Title}
 	
-	result, err := userCollections.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
+	result, err := userCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
@@ -95,7 +95,7 @@ func EditAUser(c echo.Context) error {
 	// get updated user details
 	var updatedUser models.User
 	if result.MatchedCount == 1 {
-		err := userCollections.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
+		err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
@@ -112,7 +112,7 @@ func DeleteAUser(c echo.Context) error {
 
 	objId, _ := primitive.ObjectIDFromHex(userId)
 
-	result, err := userCollections.DeleteOne(ctx, bson.M{"userId": objId})
+	result, err := userCollection.DeleteOne(ctx, bson.M{"id": objId})
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
@@ -121,6 +121,7 @@ func DeleteAUser(c echo.Context) error {
 	if result.DeletedCount < 1 {
 		return c.JSON(http.StatusNotFound, responses.UserResponse{Status: http.StatusNotFound, Message: "error", Data: &echo.Map{"data": "User with specified ID not found!"}})
 	}
+
 	return c.JSON(http.StatusOK, responses.UserResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": "User successfully deleted!"}})
 }
 
@@ -130,7 +131,7 @@ func GetAllUsers(c echo.Context) error {
 	var users []models.User
 	defer cancel()
 
-	result, err := userCollections.Find(ctx, bson.M{})
+	result, err := userCollection.Find(ctx, bson.M{})
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})

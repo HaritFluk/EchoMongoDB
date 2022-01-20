@@ -12,7 +12,7 @@ func UserRoute(e *echo.Echo) {
 	// Create User
 	e.POST("/user", controllers.CreateUser)
 	// GET User
-	e.GET("/user", controllers.GetAUser)
+	e.GET("/user/:userId", controllers.GetAUser)
 	// Edit User
 	e.PUT("/user/:userId", controllers.EditAUser)
 	// Delete User
