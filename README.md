@@ -1,5 +1,6 @@
 # Go with Echo Connect to MongoDB 
-Setup Environment Variable
+I learning golang and other go framework 
+# Setup Environment Variable
 Next, we must modify the copied connection string with the user's password we created earlier and change the database name. To do this, first, we need to create a .env file in the root directory, and in this file, add the snippet below:
 
 ```
